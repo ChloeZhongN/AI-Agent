@@ -99,7 +99,6 @@
           <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>文件读写</span>
           <span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h2M14 10h2M8 14h2M14 14h2M8 18h2M14 18h2"/></svg>计算器</span>
           <span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>视觉识别</span>
-          <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>天气API</span>
           <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>SQLite待办</span>
         </div>
         <p class="sidebar-note">支持多轮记忆 · 视觉识别 · 语音交互</p>
@@ -160,18 +159,6 @@
 
           <div class="suggestions" id="suggestions">
             <button class="suggestion" type="button"
-              data-prompt="帮我查询佛山今天的实时天气，并根据天气情况生成一份今日出行计划，保存为 trip_plan.md 文件。">
-              <span class="suggestion-icon calc">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
-              </span>
-              <span class="suggestion-text">
-                <strong>天气 + 出行计划</strong>
-                <span>查实时天气并自动生成 trip_plan.md</span>
-              </span>
-              <svg class="suggestion-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-            </button>
-
-            <button class="suggestion" type="button"
               data-prompt="帮我在数据库里添加两条待办事项：1. 完成软工智能体代码提交 2. 撰写博客园随笔文档，添加后列出当前所有待办。">
               <span class="suggestion-icon file">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
@@ -196,6 +183,18 @@
             </button>
 
             <button class="suggestion" type="button"
+              data-prompt="帮我创建一个名为 plan.md 的文件，里面写一份今日的学习计划。">
+              <span class="suggestion-icon calc">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>
+              </span>
+              <span class="suggestion-text">
+                <strong>创建本地文件</strong>
+                <span>自动编写并保存 Markdown 计划报告</span>
+              </span>
+              <svg class="suggestion-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </button>
+
+            <button class="suggestion" type="button"
               onclick="document.getElementById('imageInput').click()">
               <span class="suggestion-icon chat">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
@@ -211,7 +210,7 @@
           <div class="capabilities">
             <span><i class="cap-dot"></i>自然语言对话</span>
             <span><i class="cap-dot"></i>多模态图片识别</span>
-            <span><i class="cap-dot"></i>外部 API & 数据库</span>
+            <span><i class="cap-dot"></i>文件读写与计算</span>
             <span><i class="cap-dot"></i>语音输入 / 朗读</span>
           </div>
         </div>
@@ -219,7 +218,7 @@
 
       <!-- ==================== 输入区 ==================== -->
       <footer class="composer-wrap">
-        <!-- 新增：图片上传状态预览条 -->
+        <!-- 图片上传状态预览条 -->
         <div class="upload-preview" id="uploadPreview">
           <img id="uploadThumb" src="" alt="预览" />
           <span class="upload-name" id="uploadName">已附加图片</span>
@@ -235,7 +234,7 @@
           <input type="file" id="imageInput" accept="image/png,image/jpeg,image/webp,image/gif" hidden />
 
           <div class="composer-actions">
-            <!-- 新增：上传图片按钮 -->
+            <!-- 上传图片按钮 -->
             <button class="composer-btn img-btn" id="imgBtn" type="button" aria-label="上传图片识别" title="上传图片识别" onclick="document.getElementById('imageInput').click()">
               <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
@@ -263,7 +262,7 @@
           </div>
         </form>
         <div class="composer-hint">
-          <span id="voiceHint">支持图片视觉识别、天气查询、SQLite待办与本地文件读写</span>
+          <span id="voiceHint">支持图片视觉识别、SQLite待办管理与本地文件读写</span>
           <span class="key-hint"><kbd>Enter</kbd> 发送 · <kbd>Shift</kbd> + <kbd>Enter</kbd> 换行</span>
         </div>
       </footer>
@@ -274,7 +273,7 @@
 
   <script src="/assets/app.js" defer></script>
 
-  <!-- 零侵入式图片上传增强脚本：无需修改 app.js 即可联动后端 /api/upload -->
+  <!-- 图片上传增强脚本：无需修改 app.js 即可联动后端 /api/upload -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const imageInput = document.getElementById("imageInput");
@@ -304,7 +303,6 @@
           uploadThumb.src = data.url;
           uploadName.textContent = `已就绪：${file.name}（发送消息即可识别）`;
 
-          // 自动将图片路径指令填入输入框，完全兼容原有 app.js 的提交流程
           const prefix = `[已上传图片: ${currentUploadedPath}] `;
           if (!textInput.value.includes(currentUploadedPath)) {
             textInput.value = prefix + (textInput.value || "请帮我识别并详细分析这张图片的内容。");
@@ -325,7 +323,6 @@
         uploadPreview.style.display = "none";
       });
 
-      // 发送后自动收起图片预览条
       document.getElementById("composer").addEventListener("submit", () => {
         currentUploadedPath = "";
         uploadPreview.style.display = "none";
