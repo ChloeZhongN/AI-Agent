@@ -1,0 +1,40 @@
+智能体项目测试报告
+============================
+
+执行时间：2026-10-25T14:35:52+08:00
+执行命令：python -m unittest discover -s tests -p "test_*.py" -v
+环境：Python 3.12.4 / Windows
+覆盖范围：自然语言对话、多轮上下文、ASGI API 请求、文件与图片、计算、待办和工具调用
+模型调用：使用模拟响应，未访问外部服务
+测试数据：使用临时工作区与临时 SQLite 数据库
+
+
+test_agent_answers_naturally_and_retains_multi_turn_context (test_tools.AgentToolsTests.test_agent_answers_naturally_and_retains_multi_turn_context) ... ok
+test_agent_converts_model_failure_to_agent_error (test_tools.AgentToolsTests.test_agent_converts_model_failure_to_agent_error) ... ok
+test_agent_rejects_blank_input_without_model_call (test_tools.AgentToolsTests.test_agent_rejects_blank_input_without_model_call) ... ok
+test_agent_uses_tool_then_returns_natural_language_answer_and_events (test_tools.AgentToolsTests.test_agent_uses_tool_then_returns_natural_language_answer_and_events) ... ok
+test_calculator_evaluates_supported_arithmetic (test_tools.AgentToolsTests.test_calculator_evaluates_supported_arithmetic) ... ok
+test_calculator_rejects_unsupported_expressions (test_tools.AgentToolsTests.test_calculator_rejects_unsupported_expressions) ... ok
+test_chat_api_forwards_natural_language_and_returns_agent_result (test_tools.AgentToolsTests.test_chat_api_forwards_natural_language_and_returns_agent_result) ... ok
+test_chat_api_rejects_empty_message (test_tools.AgentToolsTests.test_chat_api_rejects_empty_message) ... ok
+test_execute_tool_dispatches_registered_tool (test_tools.AgentToolsTests.test_execute_tool_dispatches_registered_tool) ... ok
+test_execute_tool_reports_unknown_tool (test_tools.AgentToolsTests.test_execute_tool_reports_unknown_tool) ... ok
+test_file_read_reports_missing_file (test_tools.AgentToolsTests.test_file_read_reports_missing_file) ... ok
+test_file_read_returns_existing_utf8_content (test_tools.AgentToolsTests.test_file_read_returns_existing_utf8_content) ... ok
+test_file_tool_workflow_writes_then_reads_document (test_tools.AgentToolsTests.test_file_tool_workflow_writes_then_reads_document) ... ok
+test_file_write_creates_nested_file_and_preserves_utf8 (test_tools.AgentToolsTests.test_file_write_creates_nested_file_and_preserves_utf8) ... ok
+test_file_write_rejects_path_outside_workspace (test_tools.AgentToolsTests.test_file_write_rejects_path_outside_workspace) ... ok
+test_health_api_reports_available_tools (test_tools.AgentToolsTests.test_health_api_reports_available_tools) ... ok
+test_image_analysis_reports_missing_local_image (test_tools.AgentToolsTests.test_image_analysis_reports_missing_local_image) ... ok
+test_image_analysis_sends_image_and_question_to_model (test_tools.AgentToolsTests.test_image_analysis_sends_image_and_question_to_model) ... ok
+test_todo_add_list_complete_and_delete (test_tools.AgentToolsTests.test_todo_add_list_complete_and_delete) ... ok
+test_todo_add_rejects_blank_task (test_tools.AgentToolsTests.test_todo_add_rejects_blank_task) ... ok
+test_upload_api_rejects_unsupported_file_type (test_tools.AgentToolsTests.test_upload_api_rejects_unsupported_file_type) ... ok
+test_upload_api_saves_supported_image_and_returns_tool_path (test_tools.AgentToolsTests.test_upload_api_saves_supported_image_and_returns_tool_path) ... ok
+
+----------------------------------------------------------------------
+Ran 22 tests in 2.040s
+
+OK
+
+结果：22 项测试全部通过。
