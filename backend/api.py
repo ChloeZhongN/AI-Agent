@@ -64,6 +64,30 @@ def _sse(event: str, data: dict) -> str:
     payload = json.dumps(data, ensure_ascii=False)
     return f"event: {event}\ndata: {payload}\n\n"
 
+# 在 backend/api.py 顶部补充导入 UploadFile, File：
+from fastapi import FastAPI, File, HTTPException, UploadFile
+
+# 在 ASSETS_DIR 下方定义上传目录：
+UPLOADS_DIR = ROOT_DIR / "uploads"
+UPLOADS_DIR.mkdir(exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=str(UPLOADS_DIR)), name="uploads")
+
+# 新增图片上传接口：
+@app.post("/api/upload")
+async def upload_image(file: UploadFile = File(...)):
+    """接收前端上传的图片并保存到项目 uploads/ 目录下，返回相对路径供智能体调用 analyze_image 工具。"""
+    ext = Path(file.filename or "img.png").suffix.lower()
+    if ext not in {".png", ".jpg", ".jpeg", ".webp", ".gif"}:
+        raise HTTPException(status_code=400, detail="仅支持 png/jpg/jpeg/webp/gif 格式图片")
+    
+    filename = f"{uuid.uuid4().hex[:12]}{ext}"
+    save_path = UPLOADS_DIR / filename
+    content = await file.read()
+    with open(save_path, "wb") as f:
+        f.write(content)
+    
+    rel_path = f"uploads/{filename}"
+    return {"path": rel_path, "url": f"/{rel_path}"}
 
 # ==================== 智能体对话 ====================
 @app.post("/api/chat")

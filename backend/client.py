@@ -30,22 +30,23 @@ BASE_URL = os.getenv(
     "DASHSCOPE_BASE_URL",
     "https://ws-sry84uag76dm6rj8.cn-beijing.maas.aliyuncs.com/compatible-mode/v1",
 )
+# 声明大模型名称，供 api.py 的健康检查等接口导入使用
 MODEL = os.getenv("DASHSCOPE_MODEL", "qwen-plus")
 
 client = OpenAI(api_key=API_KEY, base_url=BASE_URL)
 
-MAX_TOOL_ROUNDS = 5          # 单轮对话内最多连续调用工具的次数
+MAX_TOOL_ROUNDS = 5           # 单轮对话内最多连续调用工具的次数
 MAX_MESSAGES_PER_SESSION = 40  # 每个会话保留的上下文条数（控制 token 开销）
 MAX_SESSIONS = 100             # 内存中最多保留的会话数
 
 SYSTEM_PROMPT = (
-    "你是「MCP 智能办公助手」，一个既能自然语言交流、又能调用外部工具完成任务的 AI 智能体。\n"
+    "你是「MCP 智能办公助手」，一个具备语言交互（能说）和行动执行（会做）的全能型 AI 智能体。\n"
     "行为准则：\n"
-    "1. 用简洁、友好的中文回答，必要时使用 Markdown 排版。\n"
-    "2. 当用户的需求涉及读取本地文件或数学计算时，必须调用对应工具，不要凭猜测编造结果。\n"
-    "3. 调用工具前可以先说明你准备做什么；拿到工具结果后，用自然语言向用户解释结论。\n"
-    "4. 如果工具返回错误，请向用户说明原因并给出可行的解决建议。\n"
-    "5. 与用户的对话要保持上下文连贯，记住之前提到过的信息。"
+    "1. 用简洁、友好的中文回答，善用 Markdown 排版。\n"
+    "2. 当用户的需求涉及：读取/创建本地文件、数学计算、识别/分析图片、查询天气规划行程、管理待办清单（Todo）时，必须调用对应工具，严禁凭空编造。\n"
+    "3. 如果用户上传了图片（提示中包含图片路径如 uploads/xxx.png），请主动调用 `analyze_image` 工具识别图片内容。\n"
+    "4. 拿到工具结果后，用自然、有条理的语言向用户总结结论；若工具报错，请说明原因并给出建议。\n"
+    "5. 保持多轮对话上下文连贯，记住用户之前交代的信息。"
 )
 
 # ==================== 2. 声明大模型能调用的“工具描述” ====================
@@ -54,16 +55,28 @@ tools_declaration = [
         "type": "function",
         "function": {
             "name": "read_local_file",
-            "description": "当用户需要读取本地文本文件、查看文件内容时调用此工具。",
+            "description": "当用户需要读取本地文本文件、查看代码或文档内容时调用此工具。",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "file_path": {
-                        "type": "string",
-                        "description": "要读取的文件路径，例如 'test.txt'",
-                    }
+                    "file_path": {"type": "string", "description": "相对项目根目录的文件路径，如 'README.md'"}
                 },
                 "required": ["file_path"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "write_local_file",
+            "description": "当用户要求创建、保存、修改本地文件、生成日程表或导出 Markdown 报告时调用此工具。",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "file_path": {"type": "string", "description": "要保存的文件路径，如 'plan.md'"},
+                    "content": {"type": "string", "description": "要写入文件的完整文本内容"},
+                },
+                "required": ["file_path", "content"],
             },
         },
     },
@@ -75,12 +88,58 @@ tools_declaration = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "expression": {
-                        "type": "string",
-                        "description": "数学表达式，例如 '50 + 20 * 3'",
-                    }
+                    "expression": {"type": "string", "description": "纯数学算术表达式，如 '(1024 * 8) + 256'"}
                 },
                 "required": ["expression"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "analyze_image",
+            "description": "当用户要求识别图片、提取图片文字(OCR)、分析图片内容，或消息中附带了图片路径时调用此工具。",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "image_path": {"type": "string", "description": "本地图片路径（如 'uploads/xxx.png'）或图片 URL"},
+                    "question": {"type": "string", "description": "需要针对该图片回答的具体问题或识别要求"},
+                },
+                "required": ["image_path"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "query_weather",
+            "description": "当用户询问某个城市的天气状况，或者需要结合天气制定出行计划时调用此工具。",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "city": {"type": "string", "description": "城市名称，如 '广州'、'佛山'、'北京'"}
+                },
+                "required": ["city"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "manage_todos",
+            "description": "管理用户的待办事项清单（SQLite数据库）。支持查看、添加、完成、删除待办任务。",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {
+                        "type": "string",
+                        "enum": ["list", "add", "complete", "delete"],
+                        "description": "操作类型：list(查询列表), add(新增任务), complete(完成任务), delete(删除任务)",
+                    },
+                    "task": {"type": "string", "description": "当 action 为 add 时，填写待办任务的具体描述"},
+                    "todo_id": {"type": "integer", "description": "当 action 为 complete 或 delete 时，填写任务的 ID"},
+                },
+                "required": ["action"],
             },
         },
     },
@@ -186,7 +245,7 @@ def run_agent_turn(
 
     返回：{"reply": str, "tool_calls": list, "session_id": str}
     事件（通过 on_event 回调，用于前端 SSE 实时展示）：
-      status    {"stage": "thinking" | "planning"}
+      status     {"stage": "thinking" | "planning"}
       tool_call {"id", "name", "arguments"}
       tool_result {"id", "name", "arguments", "result"}
       answer    {"content"}
@@ -330,8 +389,4 @@ def run_agent(user_prompt: str, session_id: str = "cli") -> str:
 # ==================== 5. 测试运行 ====================
 if __name__ == "__main__":
     print("可用 MCP 工具:", ", ".join(AVAILABLE_TOOLS))
-    # 测试 1：触发计算器工具（会做）
     run_agent("帮我计算一下 1024 乘以 8 是多少？", session_id="demo")
-    # 测试 2：普通自然语言对话 + 多轮记忆（能说）
-    run_agent("你好，请简单介绍一下你自己。", session_id="demo")
-    run_agent("刚才我问了你什么？", session_id="demo")

@@ -18,6 +18,44 @@
   </script>
   <link rel="icon" href="/assets/logo.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="/assets/styles.css" />
+  <style>
+    /* 补充图片上传预览条的轻量样式，完美融入原有主题 */
+    .upload-preview {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 12px;
+      margin-bottom: 8px;
+      border-radius: 10px;
+      background: rgba(107, 92, 255, 0.08);
+      border: 1px solid rgba(107, 92, 255, 0.25);
+      font-size: 13px;
+    }
+    .upload-preview img {
+      width: 36px;
+      height: 36px;
+      object-fit: cover;
+      border-radius: 6px;
+    }
+    .upload-preview .upload-name {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .upload-preview .upload-remove {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: inherit;
+      opacity: 0.7;
+      font-size: 14px;
+      padding: 2px 6px;
+    }
+    .upload-preview .upload-remove:hover {
+      opacity: 1;
+    }
+  </style>
 </head>
 <body>
   <div class="app-shell">
@@ -58,10 +96,13 @@
           </div>
         </div>
         <div class="tool-badges">
-          <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>文件读取</span>
+          <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>文件读写</span>
           <span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h2M14 10h2M8 14h2M14 14h2M8 18h2M14 18h2"/></svg>计算器</span>
+          <span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>视觉识别</span>
+          <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>天气API</span>
+          <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>SQLite待办</span>
         </div>
-        <p class="sidebar-note">支持多轮记忆 · 语音输入 · 朗读</p>
+        <p class="sidebar-note">支持多轮记忆 · 视觉识别 · 语音交互</p>
       </div>
     </aside>
 
@@ -119,49 +160,49 @@
 
           <div class="suggestions" id="suggestions">
             <button class="suggestion" type="button"
-              data-prompt="帮我计算一下 (1024 × 8 + 256) ÷ 16 的结果，并解释计算过程。">
+              data-prompt="帮我查询佛山今天的实时天气，并根据天气情况生成一份今日出行计划，保存为 trip_plan.md 文件。">
               <span class="suggestion-icon calc">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+              </span>
+              <span class="suggestion-text">
+                <strong>天气 + 出行计划</strong>
+                <span>查实时天气并自动生成 trip_plan.md</span>
+              </span>
+              <svg class="suggestion-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </button>
+
+            <button class="suggestion" type="button"
+              data-prompt="帮我在数据库里添加两条待办事项：1. 完成软工智能体代码提交 2. 撰写博客园随笔文档，添加后列出当前所有待办。">
+              <span class="suggestion-icon file">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              </span>
+              <span class="suggestion-text">
+                <strong>SQLite 待办管理</strong>
+                <span>向数据库写入待办任务并查询列表</span>
+              </span>
+              <svg class="suggestion-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </button>
+
+            <button class="suggestion" type="button"
+              data-prompt="帮我计算一下 (1024 × 8 + 256) ÷ 16 的结果，并读取 README.md 总结项目功能。">
+              <span class="suggestion-icon tool">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="3"/><path d="M8 6h8M8 11h2M14 11h2M8 15h2M14 15h2M8 19h2M14 19h2"/></svg>
               </span>
               <span class="suggestion-text">
-                <strong>算一算</strong>
-                <span>帮我计算 (1024 × 8 + 256) ÷ 16</span>
+                <strong>计算 + 读文件</strong>
+                <span>执行安全算术计算并读取项目文档</span>
               </span>
               <svg class="suggestion-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
             </button>
 
             <button class="suggestion" type="button"
-              data-prompt="读取项目根目录的 README.md，然后帮我总结这个项目做了什么。">
-              <span class="suggestion-icon file">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>
-              </span>
-              <span class="suggestion-text">
-                <strong>读文件</strong>
-                <span>读取 README.md 并总结项目内容</span>
-              </span>
-              <svg class="suggestion-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-            </button>
-
-            <button class="suggestion" type="button"
-              data-prompt="先读取 requirements.txt，再告诉我运行这个项目需要安装哪些依赖。">
-              <span class="suggestion-icon tool">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.2-2.2z"/></svg>
-              </span>
-              <span class="suggestion-text">
-                <strong>多步任务</strong>
-                <span>读取依赖文件并给出安装建议</span>
-              </span>
-              <svg class="suggestion-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-            </button>
-
-            <button class="suggestion" type="button"
-              data-prompt="你好，介绍一下你自己，你都能做什么？">
+              onclick="document.getElementById('imageInput').click()">
               <span class="suggestion-icon chat">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9.6 9.6 0 0 1-3.4-.6L3 21l1.7-4.3A8.4 8.4 0 1 1 21 11.5z"/><path d="M8 11h.01M12 11h.01M16 11h.01"/></svg>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
               </span>
               <span class="suggestion-text">
-                <strong>聊聊天</strong>
-                <span>介绍一下你自己和你的能力</span>
+                <strong>多模态图片识别</strong>
+                <span>点击上传本地图片，提取文字或分析内容</span>
               </span>
               <svg class="suggestion-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
             </button>
@@ -169,8 +210,8 @@
 
           <div class="capabilities">
             <span><i class="cap-dot"></i>自然语言对话</span>
-            <span><i class="cap-dot"></i>MCP 工具调用</span>
-            <span><i class="cap-dot"></i>多轮对话记忆</span>
+            <span><i class="cap-dot"></i>多模态图片识别</span>
+            <span><i class="cap-dot"></i>外部 API & 数据库</span>
             <span><i class="cap-dot"></i>语音输入 / 朗读</span>
           </div>
         </div>
@@ -178,12 +219,31 @@
 
       <!-- ==================== 输入区 ==================== -->
       <footer class="composer-wrap">
+        <!-- 新增：图片上传状态预览条 -->
+        <div class="upload-preview" id="uploadPreview">
+          <img id="uploadThumb" src="" alt="预览" />
+          <span class="upload-name" id="uploadName">已附加图片</span>
+          <button type="button" class="upload-remove" id="uploadRemove" title="移除图片">✕</button>
+        </div>
+
         <form class="composer" id="composer" autocomplete="off">
           <textarea id="input" rows="1" maxlength="8000"
-            placeholder="输入指令，例如：计算 1024 × 8…"
+            placeholder="输入指令，或点击右侧相机图标上传图片识别…"
             aria-label="输入消息"></textarea>
 
+          <!-- 隐藏的文件选择器 -->
+          <input type="file" id="imageInput" accept="image/png,image/jpeg,image/webp,image/gif" hidden />
+
           <div class="composer-actions">
+            <!-- 新增：上传图片按钮 -->
+            <button class="composer-btn img-btn" id="imgBtn" type="button" aria-label="上传图片识别" title="上传图片识别" onclick="document.getElementById('imageInput').click()">
+              <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <polyline points="21 15 16 10 5 21" />
+              </svg>
+            </button>
+
             <button class="composer-btn mic-btn" id="micBtn" type="button" aria-label="语音输入" title="语音输入">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <rect x="9" y="2" width="6" height="11" rx="3" />
@@ -203,7 +263,7 @@
           </div>
         </form>
         <div class="composer-hint">
-          <span id="voiceHint">Agent 可能会调用本地工具，请确认指令安全</span>
+          <span id="voiceHint">支持图片视觉识别、天气查询、SQLite待办与本地文件读写</span>
           <span class="key-hint"><kbd>Enter</kbd> 发送 · <kbd>Shift</kbd> + <kbd>Enter</kbd> 换行</span>
         </div>
       </footer>
@@ -213,5 +273,64 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="/assets/app.js" defer></script>
+
+  <!-- 零侵入式图片上传增强脚本：无需修改 app.js 即可联动后端 /api/upload -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const imageInput = document.getElementById("imageInput");
+      const uploadPreview = document.getElementById("uploadPreview");
+      const uploadThumb = document.getElementById("uploadThumb");
+      const uploadName = document.getElementById("uploadName");
+      const uploadRemove = document.getElementById("uploadRemove");
+      const textInput = document.getElementById("input");
+
+      let currentUploadedPath = "";
+
+      imageInput.addEventListener("change", async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        uploadName.textContent = "正在上传图片...";
+        uploadPreview.style.display = "flex";
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+          const resp = await fetch("/api/upload", { method: "POST", body: formData });
+          if (!resp.ok) throw new Error("上传失败");
+          const data = await resp.json();
+          currentUploadedPath = data.path;
+          uploadThumb.src = data.url;
+          uploadName.textContent = `已就绪：${file.name}（发送消息即可识别）`;
+
+          // 自动将图片路径指令填入输入框，完全兼容原有 app.js 的提交流程
+          const prefix = `[已上传图片: ${currentUploadedPath}] `;
+          if (!textInput.value.includes(currentUploadedPath)) {
+            textInput.value = prefix + (textInput.value || "请帮我识别并详细分析这张图片的内容。");
+            textInput.dispatchEvent(new Event("input", { bubbles: true }));
+            textInput.focus();
+          }
+        } catch (err) {
+          uploadName.textContent = "图片上传失败，请检查后端是否已添加 /api/upload 接口";
+        }
+        imageInput.value = "";
+      });
+
+      uploadRemove.addEventListener("click", () => {
+        if (currentUploadedPath && textInput.value.includes(`[已上传图片: ${currentUploadedPath}] `)) {
+          textInput.value = textInput.value.replace(`[已上传图片: ${currentUploadedPath}] `, "");
+        }
+        currentUploadedPath = "";
+        uploadPreview.style.display = "none";
+      });
+
+      // 发送后自动收起图片预览条
+      document.getElementById("composer").addEventListener("submit", () => {
+        currentUploadedPath = "";
+        uploadPreview.style.display = "none";
+      });
+    });
+  </script>
 </body>
 </html>
