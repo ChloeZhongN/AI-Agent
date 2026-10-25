@@ -11,8 +11,6 @@ import time
 import uuid
 from typing import Callable, Optional
 
-from openai import OpenAI
-
 try:  # 兼容 `python backend/client.py` 与 `python -m backend.client` 两种启动方式
     if __package__:
         from backend.server import AVAILABLE_TOOLS, execute_tool
@@ -22,17 +20,25 @@ except ImportError:  # pragma: no cover
     from server import AVAILABLE_TOOLS, execute_tool
 
 # ==================== 1. 初始化阿里云百炼大模型客户端 ====================
-API_KEY = os.getenv(
-    "DASHSCOPE_API_KEY",
-    "sk-ws-H.PXMDLYL.VuYv.MEQCIATz2j4r5MBxYptDPOU3T55SIorp8io-lb7N0B7Kk-s2AiAadQ0AfLxM0PuuQemnX9PWKy5SeLr_hmCLQfiSRDEphQ",
-)
-BASE_URL = os.getenv(
-    "DASHSCOPE_BASE_URL",
-    "https://ws-sry84uag76dm6rj8.cn-beijing.maas.aliyuncs.com/compatible-mode/v1",
-)
 MODEL = os.getenv("DASHSCOPE_MODEL", "qwen-plus")
 
-client = OpenAI(api_key=API_KEY, base_url=BASE_URL)
+
+def create_client():
+    """Create the model client from environment configuration only."""
+    api_key = os.getenv("DASHSCOPE_API_KEY")
+    if not api_key:
+        raise AgentError("未配置 DASHSCOPE_API_KEY 环境变量。")
+    try:
+        from openai import OpenAI
+    except ImportError as exc:
+        raise AgentError("缺少 openai 依赖，请先运行 pip install -r requirements.txt。") from exc
+    return OpenAI(
+        api_key=api_key,
+        base_url=os.getenv(
+            "DASHSCOPE_BASE_URL",
+            "https://dashscope.aliyuncs.com/compatible-mode/v1",
+        ),
+    )
 
 MAX_TOOL_ROUNDS = 5          # 单轮对话内最多连续调用工具的次数
 MAX_MESSAGES_PER_SESSION = 40  # 每个会话保留的上下文条数（控制 token 开销）
@@ -194,6 +200,8 @@ def run_agent_turn(
     prompt = (user_prompt or "").strip()
     if not prompt:
         raise AgentError("请输入内容后再发送。")
+
+    client = create_client()
 
     emit = on_event or _noop
     session = get_session(session_id)

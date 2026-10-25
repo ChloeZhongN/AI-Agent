@@ -2,6 +2,8 @@
 
 本项目构建了一个基于 **Python + Model Context Protocol (MCP) 思路 + 通义千问** 的智能办公/科研助手。
 
+> 当前版本通过 OpenAI 兼容函数调用驱动本地 Python 工具注册表，采用 MCP 风格的工具流程，但尚未启动独立的 MCP 协议服务端。
+
 它既**能说**——支持自然语言多轮对话；也**会做**——能自主判断并调用本地工具（读取文件、数学计算），再结合工具结果生成最终答复。
 
 ---
@@ -116,14 +118,15 @@ uvicorn backend.api:app --reload --port 8000
 python -m backend.client
 ```
 
-### 5.4 配置大模型（可选）
+### 5.4 配置大模型（必需）
 
-默认配置已写在 `backend/client.py` 中。推荐通过环境变量覆盖，避免把密钥提交到仓库：
+启动前必须通过环境变量提供阿里云百炼 API Key。密钥不应写入源代码、README 或提交到 Git：
 
 ```powershell
 # PowerShell
 $env:DASHSCOPE_API_KEY="你的 API Key"
-$env:DASHSCOPE_BASE_URL="你的兼容 OpenAI 接口地址"
+# 仅在使用自定义兼容接口时设置：
+$env:DASHSCOPE_BASE_URL="https://dashscope.aliyuncs.com/compatible-mode/v1"
 $env:DASHSCOPE_MODEL="qwen-plus"
 python frontend/app.py
 ```
@@ -133,6 +136,8 @@ python frontend/app.py
 export DASHSCOPE_API_KEY="你的 API Key"
 python frontend/app.py
 ```
+
+如果 API Key 曾经提交到公开仓库，请先在百炼控制台撤销并重新生成。删除当前代码里的密钥不会清除 Git 历史。
 
 > 语音输入需要浏览器授权麦克风；建议使用 Chrome / Edge，并通过 `http://127.0.0.1` 访问（`file://` 方式打开无法调用接口）。
 
@@ -178,6 +183,7 @@ curl -X POST http://127.0.0.1:8000/api/chat ^
 ## 8. 实现说明
 
 - **工具层**：`backend/server.py` 注册可用工具，`execute_tool` 按名称分发；新增工具只需实现函数并加入 `AVAILABLE_TOOLS`，同时在 `client.py` 的 `tools_declaration` 中补充描述。
+- **工具安全边界**：计算器仅解析基础算术 AST，不执行 Python 代码；文件读取仅允许项目目录内的 UTF-8 文件，且限制为 1 MB。
 - **智能体循环**：`run_agent_turn` 采用「模型决策 → 执行工具 → 结果回传 → 再决策」的循环，最多 5 轮，避免死循环。
 - **上下文管理**：每个 `ChatSession` 保存原始消息与展示消息；超长时按用户消息边界裁剪，避免留下孤立的 `tool` 消息。
 - **流式接口**：FastAPI 用后台线程执行智能体，通过 `queue.Queue` 把事件转成 SSE，前端用 `fetch` + `ReadableStream` 解析，实现工具调用过程实时可见。
@@ -209,3 +215,7 @@ curl -X POST http://127.0.0.1:8000/api/chat ^
 **语音按钮不可用**
 
 Chrome / Edge 以外的浏览器可能不支持 Web Speech API；同时需要允许麦克风权限。
+
+## 11. 博客园随笔
+
+作业要求的 Markdown 随笔草稿见 [`docs/blogpark-post.md`](docs/blogpark-post.md)。发布前需补齐课程链接、作业链接、小组成员学号、分工和每位成员心得，并把发布后的随笔链接补充到此处。

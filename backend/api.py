@@ -7,6 +7,7 @@
     uvicorn backend.api:app --reload --port 8000
 """
 import json
+import os
 import queue
 import threading
 import uuid
@@ -14,7 +15,6 @@ from pathlib import Path
 from typing import Optional
 
 from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -38,15 +38,6 @@ FRONTEND_DIR = ROOT_DIR / "frontend"
 ASSETS_DIR = FRONTEND_DIR / "assets"
 
 app = FastAPI(title="MCP 智能办公助手 API", version="1.0.0")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 
 # ==================== 请求模型 ====================
 class ChatRequest(BaseModel):
@@ -152,8 +143,10 @@ def session_delete(session_id: str):
 # ==================== 健康检查 ====================
 @app.get("/api/health")
 def health():
+    model_configured = bool(os.getenv("DASHSCOPE_API_KEY"))
     return {
-        "status": "ok",
+        "status": "ok" if model_configured else "configuration_required",
+        "model_configured": model_configured,
         "model": MODEL,
         "tools": list(AVAILABLE_TOOLS.keys()),
     }

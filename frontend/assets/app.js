@@ -1123,6 +1123,13 @@
       const response = await fetch(`${API_BASE}/api/health`, { cache: "no-store" });
       if (!response.ok) throw new Error("unhealthy");
       const data = await response.json();
+      if (!data.model_configured) {
+        els.statusCard.classList.remove("online");
+        els.statusCard.classList.add("offline");
+        els.statusText.textContent = "需要配置模型密钥";
+        els.statusSub.textContent = "设置 DASHSCOPE_API_KEY 后重启服务";
+        return;
+      }
       els.statusCard.classList.remove("offline");
       els.statusCard.classList.add("online");
       els.statusText.textContent = "Agent 在线";
