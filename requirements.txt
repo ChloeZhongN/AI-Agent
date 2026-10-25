@@ -1,3 +1,5 @@
 mcp
 openai
 requests
+fastapi
+uvicorn[standard]
